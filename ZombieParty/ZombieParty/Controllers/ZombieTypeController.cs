@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ZombieParty.Models;
+using ZombieParty.Models.Data;
 using ZombieParty.ViewModels;
 
 namespace ZombieParty.Controllers
 {
     public class ZombieTypeController : Controller
     {
-        private BaseDonnees _baseDonnees { get; set; }
+        private ZombiePartyDbContext _baseDonnees { get; set; }
 
-        public ZombieTypeController(BaseDonnees baseDonnees)
+        public ZombieTypeController(ZombiePartyDbContext baseDonnees)
         {
             _baseDonnees = baseDonnees;
         }
@@ -22,14 +23,14 @@ namespace ZombieParty.Controllers
 
         public IActionResult Details(int id)
         {
-            var zombies = _baseDonnees.Zombies.Where(z => z.ZombieTypeId == id);
+            var zombies = _baseDonnees.Zombies.Where(z => z.ZombieTypeId == id).ToList();
 
             ZombieTypeVM zombieTypeVM = new()
             {
-                ZombieType = new(),
-                ZombiesList = zombies.ToList(),
+                ZombieType = _baseDonnees.ZombieTypes.FirstOrDefault( x => x.Id == id),
+                ZombiesList = zombies,
                 ZombiesCount = zombies.Count(),
-                PointsAverage = zombies.Average(p => p.Point)
+                PointsAverage = zombies.Count > 0 ? zombies.Average(p => p.Point): 0
             };
 
             zombieTypeVM.ZombieType = _baseDonnees.ZombieTypes.FirstOrDefault(zt => zt.Id == id);
